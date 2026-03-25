@@ -33,7 +33,7 @@
             font-weight: 700;
         }
 
-        /* ── Fund Flow inner tabs ── */
+        /* ── ETF Flow inner tabs ── */
         .tab-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
         .tab-active { background-color: var(--blue) !important; color: white !important; box-shadow: 0 4px 12px -2px rgba(0,100,255,0.3); }
         .region-card-btn { cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; background: white; }
@@ -77,7 +77,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
-                Global Fund Flows
+                Global ETF Flows
             </button>
             <div class="w-px bg-slate-100 self-stretch"></div>
             <button onclick="switchMainTab('import')" id="main-tab-import"
@@ -297,7 +297,7 @@
 
 
         <!-- ═══════════════════════════════════════════════════
-             TAB 2 — FUND FLOW DASHBOARD
+             TAB 2 — ETF FLOW DASHBOARD
         ════════════════════════════════════════════════════ -->
         <div id="page-fundflow" style="display:none;">
 
@@ -310,7 +310,7 @@
                                 <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                                 </svg>
-                                Global Fund Flows
+                                Global ETF Flows
                             </h1>
                             <p class="text-slate-500 font-medium tracking-tight">Data Verified · 8 Regions · All figures in Million USD</p>
                         </div>
@@ -455,7 +455,7 @@
 
 
     /* ────────────────────────────────────────────────
-       FUND FLOW — DATA
+       ETF FLOW — DATA
     ──────────────────────────────────────────────── */
     const colors = {
         blue: '#0064FF', red: '#EF3C67', green: '#61D09C', maroon: '#7A0334',
