@@ -104,14 +104,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
                                 </svg>
                                 <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight uppercase" style="font-family:'Sarabun',sans-serif;">ASEAN Weekly Macro</h1>
-                                <a href="https://github.com/kidkuiecon-tech/taa1_asean0325-/blob/main/20260324%20ASEAN%20Macro%20Update.pdf"
-                                   target="_blank"
+                                <button onclick="openPdfModal('https://raw.githubusercontent.com/kidkuiecon-tech/taa1_asean0325-/main/20260324%20ASEAN%20Macro%20Update.pdf', 'Weekly Review: ASEAN Macro Update')"
                                    class="hidden md:flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-sm ml-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     Full Document (PDF)
-                                </a>
+                                </button>
                             </div>
                             <p class="text-slate-500 font-bold mt-2 uppercase tracking-widest text-sm" style="font-family:'Sarabun',sans-serif;">Research Insights • 24 มีนาคม 2569</p>
                         </div>
@@ -254,8 +253,9 @@
                         Reference & Research Papers
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <a href="https://github.com/kidkuiecon-tech/taa1_asean0325-/blob/main/20260324%20MKE%20ASEAN%20Macro.pdf" target="_blank"
-                           class="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between">
+                        <!-- KimEng / Maybank Paper -->
+                        <div onclick="openPdfModal('https://raw.githubusercontent.com/kidkuiecon-tech/taa1_asean0325-/main/20260324%20MKE%20ASEAN%20Macro.pdf', 'ASEAN X Macro: Gulf War – Assessing the Fallout')"
+                           class="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between cursor-pointer">
                             <div>
                                 <div class="text-blue-600 mb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -265,8 +265,12 @@
                                 <h4 class="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors" style="font-family:'Sarabun',sans-serif;">ASEAN X Macro: Gulf War – Assessing the Fallout</h4>
                                 <p class="text-sm text-slate-500 leading-relaxed mb-4 italic" style="font-family:'Sarabun',sans-serif;">Source: Maybank Research</p>
                             </div>
-                            <span class="text-xs font-black uppercase text-blue-600 flex items-center gap-1" style="font-family:'Sarabun',sans-serif;">Download Reference Paper →</span>
-                        </a>
+                            <span class="text-xs font-black uppercase text-blue-600 flex items-center gap-1" style="font-family:'Sarabun',sans-serif;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                View Paper →
+                            </span>
+                        </div>
+                        <!-- BBLAM Weekly Review -->
                         <div class="group bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-sm flex flex-col justify-between">
                             <div>
                                 <div class="text-white mb-4">
@@ -277,11 +281,11 @@
                                 <h4 class="font-bold text-white text-lg mb-2" style="font-family:'Sarabun',sans-serif;">Weekly Review: 20260324 ASEAN Macro Update</h4>
                                 <p class="text-sm text-slate-400 leading-relaxed mb-4" style="font-family:'Sarabun',sans-serif;">สรุปภาพรวมรายสัปดาห์ฉบับเต็ม (BBLAM)</p>
                             </div>
-                            <a href="https://github.com/kidkuiecon-tech/taa1_asean0325-/blob/main/20260324%20ASEAN%20Macro%20Update.pdf"
-                               target="_blank"
-                               class="text-xs font-black uppercase text-white bg-blue-600 py-2 px-4 rounded-lg text-center hover:bg-blue-500 transition-colors" style="font-family:'Sarabun',sans-serif;">
-                               Download Full Report
-                            </a>
+                            <button onclick="openPdfModal('https://raw.githubusercontent.com/kidkuiecon-tech/taa1_asean0325-/main/20260324%20ASEAN%20Macro%20Update.pdf', 'Weekly Review: ASEAN Macro Update')"
+                               class="text-xs font-black uppercase text-white bg-blue-600 py-2 px-4 rounded-lg text-center hover:bg-blue-500 transition-colors flex items-center justify-center gap-2" style="font-family:'Sarabun',sans-serif;">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                               View Full Report
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -878,6 +882,55 @@
         buildImportDashboard();
     };
 
+    /* ────────────────────────────────────────────────
+       PDF MODAL
+    ──────────────────────────────────────────────── */
+    function openPdfModal(url, title) {
+        document.getElementById('pdf-modal-title').innerText = title;
+        document.getElementById('pdf-iframe').src = url;
+        document.getElementById('pdf-modal-overlay').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closePdfModal() {
+        document.getElementById('pdf-modal-overlay').classList.add('hidden');
+        document.getElementById('pdf-iframe').src = '';
+        document.body.style.overflow = '';
+    }
+    // Close on backdrop click
+    document.getElementById('pdf-modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closePdfModal();
+    });
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePdfModal();
+    });
+
     </script>
+
+    <!-- ── PDF Modal ── -->
+    <div id="pdf-modal-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="background:rgba(15,23,42,0.75);backdrop-filter:blur(4px);">
+        <div class="bg-white rounded-2xl shadow-2xl flex flex-col w-full max-w-5xl" style="height:90vh;">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span id="pdf-modal-title" class="font-bold text-slate-800 text-sm" style="font-family:'Sarabun',sans-serif;"></span>
+                </div>
+                <button onclick="closePdfModal()"
+                    class="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-red-500 bg-slate-100 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all border border-slate-200 hover:border-red-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Close
+                </button>
+            </div>
+            <!-- iframe -->
+            <iframe id="pdf-iframe" src="" class="flex-1 w-full rounded-b-2xl" style="border:none;"></iframe>
+        </div>
+    </div>
+
 </body>
 </html>
