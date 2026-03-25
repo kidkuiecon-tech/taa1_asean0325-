@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASEAN Macro & Global Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #0064FF; --red: #EF3C67; --green: #61D09C; --maroon: #7A0334;
+            --purple: #9E50CC; --pink: #F47C99; --orange: #FF6600;
+            --teal: #00A896; --brown: #8B4513;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* ── Main Tab Navigation ── */
+        .main-tab-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+        .main-tab-btn.active {
+            border-bottom-color: var(--blue);
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        /* ── Fund Flow inner tabs ── */
+        .tab-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); white-space: nowrap; }
+        .tab-active { background-color: var(--blue) !important; color: white !important; box-shadow: 0 4px 12px -2px rgba(0,100,255,0.3); }
+        .region-card-btn { cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; background: white; }
+        .region-card-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .region-card-btn.selected { border-color: var(--blue); background-color: #f0f7ff; box-shadow: inset 0 0 0 1px var(--blue); }
+
+        /* ── Import Analysis ── */
+        .category-card { transition: transform 0.2s; font-family: 'Sarabun', sans-serif; }
+        .category-card:hover { transform: translateY(-2px); }
+        .download-btn { transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .download-btn:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transform: scale(1.02); }
+
+        /* ── ASEAN Weekly Macro ── */
+        .asean-body { font-family: 'Sarabun', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+
+        <!-- ═══════════════════════════════════════════════════
+             MAIN TAB BAR
+        ════════════════════════════════════════════════════ -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 mb-6 flex overflow-x-auto">
+            <button onclick="switchMainTab('asean')" id="main-tab-asean"
+                class="main-tab-btn active flex items-center gap-2 px-8 py-5 text-sm font-semibold text-slate-600 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                </svg>
+                ASEAN Weekly Macro
+            </button>
+            <div class="w-px bg-slate-100 self-stretch"></div>
+            <button onclick="switchMainTab('fundflow')" id="main-tab-fundflow"
+                class="main-tab-btn flex items-center gap-2 px-8 py-5 text-sm font-semibold text-slate-600 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+                Global Fund Flows
+            </button>
+            <div class="w-px bg-slate-100 self-stretch"></div>
+            <button onclick="switchMainTab('import')" id="main-tab-import"
+                class="main-tab-btn flex items-center gap-2 px-8 py-5 text-sm font-semibold text-slate-600 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 3v18"/>
+                </svg>
+                Import Analysis
+            </button>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             TAB 1 — ASEAN WEEKLY MACRO
+        ════════════════════════════════════════════════════ -->
+        <div id="page-asean" class="asean-body">
+            <div class="max-w-6xl mx-auto space-y-12">
+
+                <!-- Header -->
+                <header class="border-b-2 pb-8 border-blue-700">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <div class="flex items-center gap-3 text-blue-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                </svg>
+                                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight uppercase" style="font-family:'Sarabun',sans-serif;">ASEAN Weekly Macro</h1>
+                                <a href="https://bblasset.sharepoint.com/:b:/r/sites/EconUpdate_Research/Econ%20Research%20Publication/9.%20ASEAN%20Weekly%20Review/20260324%20ASEAN%20Macro%20Update.pdf?csf=1&web=1&e=RWr5Yd"
+                                   target="_blank"
+                                   class="hidden md:flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-sm ml-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                    Full Document (PDF)
+                                </a>
+                            </div>
+                            <p class="text-slate-500 font-bold mt-2 uppercase tracking-widest text-sm" style="font-family:'Sarabun',sans-serif;">Research Insights • 24 มีนาคม 2569</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="bg-blue-50 px-6 py-3 rounded-xl border border-blue-100 text-right shadow-sm w-full md:w-auto">
+                                <div class="text-xs font-bold text-blue-700 uppercase mb-1" style="font-family:'Sarabun',sans-serif;">Weekly Outlook</div>
+                                <div class="text-xl font-black text-blue-900" style="font-family:'Sarabun',sans-serif;">24 - 30 มีนาคม 2569</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Weekly Focus -->
+                <section class="bg-white rounded-2xl p-8 border-l-8 border-blue-600 shadow-md">
+                    <h2 class="text-sm font-black text-blue-800 uppercase flex items-center gap-2 mb-4 tracking-tighter" style="font-family:'Sarabun',sans-serif;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        Weekly Research Focus
+                    </h2>
+                    <div class="text-xl md:text-2xl text-slate-700 leading-relaxed font-semibold" style="font-family:'Sarabun',sans-serif;">
+                        อาเซียนเผชิญความเสี่ยง <span class="text-blue-600 border-b-4 border-blue-100">"Stagflationary Shock"</span>
+                        จากวิกฤตความขัดแย้งในอ่าวเปอร์เซีย กระทบทั้งราคาพลังงาน ปุ๋ย และห่วงโซ่อุปทานอาหาร
+                        โดยเฉพาะฟิลิปปินส์ เวียดนาม และไทยที่เปราะบางที่สุด
+                    </div>
+                </section>
+
+                <!-- Daily News Table -->
+                <section>
+                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-black mb-6 flex items-center gap-3 text-slate-800 uppercase tracking-tight" style="font-family:'Sarabun',sans-serif;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z"/>
+                            </svg>
+                            Daily News : สถานการณ์ข่าวรายวัน (18-24 มี.ค. 2569)
+                        </h3>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table style="width:100%;border-collapse:collapse;min-width:900px;font-family:'Sarabun',sans-serif;">
+                                <thead style="background:#0f172a;color:white;font-size:10px;font-weight:900;text-transform:uppercase;">
+                                    <tr>
+                                        <th style="padding:16px;text-align:left;border-right:1px solid #334155;">วันที่</th>
+                                        <th style="padding:16px;text-align:left;border-right:1px solid #334155;">ประเทศ</th>
+                                        <th style="padding:16px;text-align:left;border-right:1px solid #334155;">ประเด็น</th>
+                                        <th style="padding:16px;text-align:left;">รายละเอียด</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size:11px;line-height:1.6;">
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">18 มี.ค.</td><td style="padding:12px;font-weight:700;">ไทย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">คุมเข้มราคาสินค้า 59 รายการ</td><td style="padding:12px;color:#475569;">พณ.คุมราคาสินค้าอุปโภคบริโภคเข้มงวด รับมือต้นทุนพลังงาน ประเมินปุ๋ยยูเรียพอถึง ส.ค. 2026</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">18 มี.ค.</td><td style="padding:12px;font-weight:700;">อินโดนีเซีย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">คงดอกเบี้ย & พยุงรูเปียห์</td><td style="padding:12px;color:#475569;">คงดอกเบี้ยที่ 4.75% พร้อมลดเพดานซื้อดอลลาร์สำหรับรายย่อยเหลือ 5 หมื่นดอลลาร์/เดือน</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">18 มี.ค.</td><td style="padding:12px;font-weight:700;">ฟิลิปปินส์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">หาแหล่งปุ๋ย & เพิ่มสต็อกน้ำมัน</td><td style="padding:12px;color:#475569;">เจรจานำเข้าปุ๋ยจากจีนเพิ่มเติม และจัดซื้อน้ำมัน 2 ล้านบาร์เรล เพิ่มสำรองรวมเป็น 70 วัน</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">18 มี.ค.</td><td style="padding:12px;font-weight:700;">มาเลเซีย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">ตลาดหุ้นเป็นแหล่งพักเงิน</td><td style="padding:12px;color:#475569;">นักลงทุนมองเป็น Safe Haven จากเสถียรภาพการเมืองและอานิสงส์ราคาน้ำมันสูง ค่าเงินริงกิตเป็นบวก</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">19 มี.ค.</td><td style="padding:12px;font-weight:700;">ไทย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">กู้เงินเข้ากองทุนน้ำมัน</td><td style="padding:12px;color:#475569;">คลังศึกษาออกกฎหมายพิเศษเพื่อกู้เงินอุดหนุนกองทุนน้ำมัน เตรียมทางเลือกให้รัฐบาลชุดใหม่</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">19 มี.ค.</td><td style="padding:12px;font-weight:700;">ฟิลิปปินส์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">BSP แทรกแซงค่าเงิน</td><td style="padding:12px;color:#475569;">ยืนยันแทรกแซงตลาด FX เฉพาะช่วงผันผวนรุนแรง หลังเปโซอ่อนค่าแตะ 60 ต่อดอลลาร์ฯ</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">23 มี.ค.</td><td style="padding:12px;font-weight:700;">ไทย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">น้ำมันตึงตัวบางพื้นที่</td><td style="padding:12px;color:#475569;">ประชาชนรอคิวเติมดีเซลยาวและบางสถานีงดจำหน่าย เกิดความกังวลต่อการบริหารจัดการพลังงานสำรอง</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">23 มี.ค.</td><td style="padding:12px;font-weight:700;">ฟิลิปปินส์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">เสี่ยงจากแผนพักภาษีน้ำมัน</td><td style="padding:12px;color:#475569;">ยอดเก็บรายได้ BIR โต 3% แต่เตือนว่าหากระงับภาษีสรรพสามิตน้ำมัน รัฐจะสูญรายได้ 1.36 แสนล้านเปโซ</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">23 มี.ค.</td><td style="padding:12px;font-weight:700;">สิงคโปร์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">พร้อมช่วยครัวเรือน/ธุรกิจ</td><td style="padding:12px;color:#475569;">ส่งสัญญาณแทรกแซงช่วยเหลือหากค่าไฟพุ่งจากความขัดแย้งในตะวันออกกลางที่รุนแรงขึ้น</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">23 มี.ค.</td><td style="padding:12px;font-weight:700;">สิงคโปร์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">Core Inflation พุ่ง</td><td style="padding:12px;color:#475569;">เงินเฟ้อพื้นฐานเพิ่มเป็น 1.4% สูงสุดนับจากปลายปี 2024 แม้เงินเฟ้อทั่วไปจะชะลอลงเหลือ 1.2%</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">24 มี.ค.</td><td style="padding:12px;font-weight:700;">ไทย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">ลดสำรองน้ำมันเหลือ 1%</td><td style="padding:12px;color:#475569;">ปรับลดจาก 3% เพื่อเพิ่มน้ำมันหมุนเวียนแก้ปัญหาขาดแคลน คาดคลี่คลายใน 1 สัปดาห์</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">24 มี.ค.</td><td style="padding:12px;font-weight:700;">อินโดนีเซีย</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">Hybrid & WFH</td><td style="padding:12px;color:#475569;">ประธานาธิบดีสั่งใช้แผนประหยัดพลังงาน WFH สัปดาห์ละ 1 ครั้ง และเหมือง Grasberg เตรียมเดินเครื่อง</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px;">24 มี.ค.</td><td style="padding:12px;font-weight:700;">ฟิลิปปินส์</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">กลุ่มขนส่งเตรียมประท้วง</td><td style="padding:12px;color:#475569;">นัดหยุดงานทั่วประเทศ 26-27 มี.ค. กดดันรัฐระงับ VAT และภาษีน้ำมัน รับมือราคาน้ำมันแพง</td></tr>
+                                    <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:12px;">24 มี.ค.</td><td style="padding:12px;font-weight:700;">เวียดนาม</td><td style="padding:12px;font-weight:600;color:#1d4ed8;">รักษาเสถียรภาพตลาดค้าปลีก</td><td style="padding:12px;color:#475569;">เร่งคุมราคาสินค้าหลังซัพพลายเออร์กว่า 80% ขอขึ้นราคา เตรียมใช้ E-commerce ช่วยลดต้นทุน</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Macro Projections -->
+                <section class="space-y-8">
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3 border-b pb-4 uppercase" style="font-family:'Sarabun',sans-serif;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Macroeconomic Projections (2026F)
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- GDP -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                            <h3 class="text-sm font-black mb-4 text-slate-800 uppercase" style="font-family:'Sarabun',sans-serif;">GDP Growth (%)</h3>
+                            <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:'Sarabun',sans-serif;">
+                                <thead style="background:#f1f5f9;font-weight:700;">
+                                    <tr><th style="padding:8px;text-align:left;">Country</th><th style="padding:8px;">2026F</th><th style="padding:8px;">Change</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Indonesia</td><td style="padding:8px;font-weight:700;">5.0</td><td style="padding:8px;color:#ef4444;">-0.2</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Malaysia</td><td style="padding:8px;font-weight:700;">4.9</td><td style="padding:8px;color:#ef4444;">-0.2</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Philippines</td><td style="padding:8px;font-weight:700;">4.5</td><td style="padding:8px;color:#ef4444;">-0.4</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Singapore</td><td style="padding:8px;font-weight:700;">3.4</td><td style="padding:8px;color:#ef4444;">-0.2</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Thailand</td><td style="padding:8px;font-weight:700;">1.8</td><td style="padding:8px;color:#ef4444;">-0.3</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Vietnam</td><td style="padding:8px;font-weight:700;">7.2</td><td style="padding:8px;color:#ef4444;">-0.4</td></tr>
+                                    <tr style="background:#f8fafc;font-weight:700;border-top:2px solid #e2e8f0;"><td style="padding:8px;">ASEAN-6</td><td style="padding:8px;">4.5</td><td style="padding:8px;color:#ef4444;">-0.3</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Inflation -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                            <h3 class="text-sm font-black mb-4 text-slate-800 uppercase" style="font-family:'Sarabun',sans-serif;">Inflation (%)</h3>
+                            <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:'Sarabun',sans-serif;">
+                                <thead style="background:#f1f5f9;font-weight:700;">
+                                    <tr><th style="padding:8px;text-align:left;">Country</th><th style="padding:8px;">2026F</th><th style="padding:8px;">Change</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Indonesia</td><td style="padding:8px;font-weight:700;">3.3</td><td style="padding:8px;color:#dc2626;">+0.5</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Malaysia</td><td style="padding:8px;font-weight:700;">1.8</td><td style="padding:8px;color:#dc2626;">+0.1</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Philippines</td><td style="padding:8px;font-weight:700;">3.3</td><td style="padding:8px;color:#dc2626;">+0.5</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Singapore</td><td style="padding:8px;font-weight:700;">1.8</td><td style="padding:8px;color:#dc2626;">+0.2</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Thailand</td><td style="padding:8px;font-weight:700;">0.8</td><td style="padding:8px;color:#dc2626;font-weight:700;">+0.8</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Vietnam</td><td style="padding:8px;font-weight:700;">4.1</td><td style="padding:8px;color:#dc2626;">+0.4</td></tr>
+                                    <tr style="background:#f8fafc;font-weight:700;border-top:2px solid #e2e8f0;"><td style="padding:8px;">ASEAN-6</td><td style="padding:8px;">2.7</td><td style="padding:8px;color:#dc2626;">+0.5</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Policy Rate -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                            <h3 class="text-sm font-black mb-4 text-slate-800 uppercase" style="font-family:'Sarabun',sans-serif;">Policy Rate (%)</h3>
+                            <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:'Sarabun',sans-serif;">
+                                <thead style="background:#f1f5f9;font-weight:700;">
+                                    <tr><th style="padding:8px;text-align:left;">Country</th><th style="padding:8px;">2026F</th><th style="padding:8px;">Change</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Indonesia</td><td style="padding:8px;font-weight:700;">4.75</td><td style="padding:8px;color:#dc2626;">+0.50</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Malaysia</td><td style="padding:8px;font-weight:700;">2.75</td><td style="padding:8px;color:#94a3b8;">0.00</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Philippines</td><td style="padding:8px;font-weight:700;">4.50</td><td style="padding:8px;color:#dc2626;">+0.50</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Singapore</td><td style="padding:8px;font-weight:700;">0.85</td><td style="padding:8px;color:#dc2626;">+0.15</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Thailand</td><td style="padding:8px;font-weight:700;">1.00</td><td style="padding:8px;color:#94a3b8;">0.00</td></tr>
+                                    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px;">Vietnam</td><td style="padding:8px;font-weight:700;">4.75</td><td style="padding:8px;color:#94a3b8;">0.00</td></tr>
+                                    <tr style="background:#f8fafc;font-weight:700;border-top:2px solid #e2e8f0;"><td style="padding:8px;">Source</td><td colspan="2" style="padding:8px;">Maybank Research</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reference Papers -->
+                <section class="space-y-6">
+                    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3 border-b pb-4 uppercase tracking-tight" style="font-family:'Sarabun',sans-serif;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Reference & Research Papers
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <a href="https://bblasset.sharepoint.com/:b:/r/sites/EconUpdate_Research/Econ%20Research%20Publication/10.%20%20ASEAN%20Papers/20260324%20MKE%20ASEAN%20Macro.pdf?csf=1&web=1&e=2hzzfB" target="_blank"
+                           class="group bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between">
+                            <div>
+                                <div class="text-blue-600 mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-lg mb-2 group-hover:text-blue-600 transition-colors" style="font-family:'Sarabun',sans-serif;">ASEAN X Macro: Gulf War – Assessing the Fallout</h4>
+                                <p class="text-sm text-slate-500 leading-relaxed mb-4 italic" style="font-family:'Sarabun',sans-serif;">Source: Maybank Research</p>
+                            </div>
+                            <span class="text-xs font-black uppercase text-blue-600 flex items-center gap-1" style="font-family:'Sarabun',sans-serif;">Download Reference Paper →</span>
+                        </a>
+                        <div class="group bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="text-white mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold text-white text-lg mb-2" style="font-family:'Sarabun',sans-serif;">Weekly Review: 20260324 ASEAN Macro Update</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed mb-4" style="font-family:'Sarabun',sans-serif;">สรุปภาพรวมรายสัปดาห์ฉบับเต็ม (BBLAM)</p>
+                            </div>
+                            <a href="https://bblasset.sharepoint.com/:b:/r/sites/EconUpdate_Research/Econ%20Research%20Publication/9.%20ASEAN%20Weekly%20Review/20260324%20ASEAN%20Macro%20Update.pdf?csf=1&web=1&e=RWr5Yd"
+                               target="_blank"
+                               class="text-xs font-black uppercase text-white bg-blue-600 py-2 px-4 rounded-lg text-center hover:bg-blue-500 transition-colors" style="font-family:'Sarabun',sans-serif;">
+                               Download Full Report
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="pt-10 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-slate-400 text-[10px] gap-6 italic pb-10 uppercase tracking-[0.2em] font-black" style="font-family:'Sarabun',sans-serif;">
+                    <p>© 2026 ASEAN Weekly Macro Research</p>
+                    <span class="text-slate-300">Sources: Maybank, Bloomberg, BBLAM Research</span>
+                </footer>
+
+            </div>
+        </div><!-- /page-asean -->
+
+
+        <!-- ═══════════════════════════════════════════════════
+             TAB 2 — FUND FLOW DASHBOARD
+        ════════════════════════════════════════════════════ -->
+        <div id="page-fundflow" style="display:none;">
+
+            <!-- Header -->
+            <header class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-slate-200">
+                <div class="flex flex-col gap-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                        <div>
+                            <h1 class="text-3xl font-bold text-slate-800 tracking-tight flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                </svg>
+                                Global Fund Flows
+                            </h1>
+                            <p class="text-slate-500 font-medium tracking-tight">Data Verified · 8 Regions · All figures in Million USD</p>
+                        </div>
+                        <div class="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+                            <button onclick="updateState({period:'1d'})" id="period-1d" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs">1D</button>
+                            <button onclick="updateState({period:'1w'})" id="period-1w" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs">1W</button>
+                            <button onclick="updateState({period:'1m'})" id="period-1m" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs">1M</button>
+                            <button onclick="updateState({period:'ytd'})" id="period-ytd" class="tab-btn px-4 py-2 rounded-xl font-bold text-xs">YTD</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200">
+                        <button onclick="updateState({asset:'equity'})"         id="asset-equity"           class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Equity</button>
+                        <button onclick="updateState({asset:'fixed-income'})"   id="asset-fixed-income"     class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Fixed Income</button>
+                        <button onclick="updateState({asset:'specialty'})"      id="asset-specialty"        class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Specialty</button>
+                        <button onclick="updateState({asset:'money-market'})"   id="asset-money-market"     class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Money Market</button>
+                        <button onclick="updateState({asset:'mixed-allocation'})}" id="asset-mixed-allocation" class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Mixed Allocation</button>
+                        <button onclick="updateState({asset:'alternative'})"    id="asset-alternative"      class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Alternative</button>
+                        <button onclick="updateState({asset:'commodity'})"      id="asset-commodity"        class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Commodity</button>
+                        <button onclick="updateState({asset:'municipal'})"      id="asset-municipal"        class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider border border-transparent">Municipal</button>
+                        <div class="w-px h-6 bg-slate-300 mx-1 self-center"></div>
+                        <button onclick="updateState({asset:'total'})"          id="asset-total"            class="tab-btn px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider bg-slate-200 text-slate-700">Total All Assets</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-6 flex items-center uppercase text-xs tracking-widest">
+                        <span class="w-2 h-4 bg-blue-600 rounded-full mr-2"></span>Regional Weight (%)
+                    </h3>
+                    <div class="relative h-[280px]"><canvas id="flowDonutChart"></canvas></div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-6 flex items-center uppercase text-xs tracking-widest">
+                        <span class="w-2 h-4 bg-orange-500 rounded-full mr-2"></span>Net Flows by Region (M USD)
+                    </h3>
+                    <div class="h-[280px]"><canvas id="flowBarChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Region Cards -->
+            <div id="flowCards" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-8"></div>
+
+            <!-- Breakdown Table -->
+            <div id="countrySection" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div class="flex items-center">
+                        <div id="selectedRegionIndicator" class="w-4 h-4 rounded-full mr-3 shadow-sm"></div>
+                        <h3 class="font-bold text-xl text-slate-800 uppercase tracking-tight">Breakdown: <span id="selectedRegionName">-</span></h3>
+                    </div>
+                    <div class="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-xl uppercase tracking-widest border border-blue-100" id="selectedAssetLabel">EQUITY</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black tracking-widest border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-4">Country / Segment</th>
+                                <th class="px-6 py-4 text-center">1D</th>
+                                <th class="px-6 py-4 text-center">1W</th>
+                                <th class="px-6 py-4 text-center">1M</th>
+                                <th class="px-6 py-4 text-center">YTD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="countryTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Matrix -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+                <div class="p-6 border-b border-slate-100 bg-slate-50/30">
+                    <h3 class="font-bold text-xl text-slate-800">Verified Summary Matrix</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-black tracking-widest">
+                            <tr>
+                                <th class="px-6 py-4">Region</th>
+                                <th class="px-6 py-4 text-center">1D Flow</th>
+                                <th class="px-6 py-4 text-center">1W Flow</th>
+                                <th class="px-6 py-4 text-center">1M Flow</th>
+                                <th class="px-6 py-4 text-center">YTD Flow</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flowTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /page-fundflow -->
+
+
+        <!-- ═══════════════════════════════════════════════════
+             TAB 2 — IMPORT ANALYSIS DASHBOARD
+        ════════════════════════════════════════════════════ -->
+        <div id="page-import" style="display:none;">
+
+            <div id="capture-area" class="bg-gray-50 rounded-3xl p-4">
+                <header class="mb-8 text-center relative" style="font-family:'Sarabun',sans-serif;">
+                    <h1 class="text-3xl font-bold text-slate-800 mb-2">Import Analysis Dashboard</h1>
+                    <p class="text-slate-500 text-lg font-medium">สัดส่วนการนำเข้าสินค้าแยกตามประเภทและประเทศคู่ค้าหลัก (% of total item imports)</p>
+                    <div class="mt-6 no-export">
+                        <button id="download-btn" class="download-btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-bold flex items-center mx-auto gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            ดาวน์โหลดเป็นรูปภาพ (PNG)
+                        </button>
+                        <p id="status-msg" class="text-xs text-blue-500 mt-2 hidden">กำลังประมวลผลรูปภาพ...</p>
+                    </div>
+                </header>
+
+                <div id="import-dashboard-content" class="space-y-12"></div>
+
+                <footer class="mt-12 text-center text-slate-400 text-sm pb-4" style="font-family:'Sarabun',sans-serif;">
+                    Source: Compiled Import Statistics Data
+                </footer>
+            </div>
+
+        </div><!-- /page-import -->
+
+    </div><!-- /max-w-7xl -->
+
+
+    <!-- ═══════════════════════════════════════════════════
+         JAVASCRIPT
+    ════════════════════════════════════════════════════ -->
+    <script>
+
+    /* ────────────────────────────────────────────────
+       MAIN TAB SWITCH
+    ──────────────────────────────────────────────── */
+    function switchMainTab(tab) {
+        document.getElementById('page-asean').style.display    = tab === 'asean'    ? 'block' : 'none';
+        document.getElementById('page-fundflow').style.display = tab === 'fundflow' ? 'block' : 'none';
+        document.getElementById('page-import').style.display   = tab === 'import'   ? 'block' : 'none';
+        document.getElementById('main-tab-asean').classList.toggle('active', tab === 'asean');
+        document.getElementById('main-tab-fundflow').classList.toggle('active', tab === 'fundflow');
+        document.getElementById('main-tab-import').classList.toggle('active', tab === 'import');
+    }
+
+
+    /* ────────────────────────────────────────────────
+       FUND FLOW — DATA
+    ──────────────────────────────────────────────── */
+    const colors = {
+        blue: '#0064FF', red: '#EF3C67', green: '#61D09C', maroon: '#7A0334',
+        purple: '#9E50CC', pink: '#F47C99', orange: '#FF6600', teal: '#00A896'
+    };
+
+    const regions = [
+        { id: 'na',            name: 'North America',    color: colors.maroon  },
+        { id: 'europe',        name: 'Europe',           color: colors.purple  },
+        { id: 'asia_ex_asean', name: 'Asia (ex-ASEAN)',  color: colors.blue    },
+        { id: 'asean',         name: 'ASEAN',            color: colors.orange  },
+        { id: 'au_oceania',    name: 'Aus & Oceania',    color: colors.teal    },
+        { id: 'africa_me',     name: 'Africa & Mid East',color: colors.red     },
+        { id: 's_c_america',   name: 'S & C America',    color: colors.pink    },
+        { id: 'others',        name: 'Not Classified',   color: colors.green   },
+    ];
+
+    const countryFlows = {
+        equity: {
+            na: [
+                { name: 'United States',         flows: [-38153, 56572, 46965, 148379] },
+                { name: 'Canada',                flows: [298,    1107,  3296,   9748]  },
+                { name: 'Mexico',                flows: [-4,    -24,    -98,    -662]  },
+                { name: 'North American Region', flows: [5,      51,    424,     727]  },
+            ],
+            europe: [
+                { name: 'Eastern Europe',        flows: [-11,   -38,   -117,    455]  },
+                { name: 'Western Europe',        flows: [129,   844,   2641,   5947]  },
+                { name: 'European Reg. ex UK',   flows: [0,      12,     38,    -210]  },
+                { name: 'European Region',       flows: [-460,  -66,   3851,  16289]  },
+                { name: 'European Union',        flows: [0,       0,     19,      83]  },
+                { name: 'Eurozone',              flows: [167,   425,   2739,   7151]  },
+            ],
+            asia_ex_asean: [
+                { name: 'China',                 flows: [83,   -1282, -10104, -134947] },
+                { name: 'Hong Kong',             flows: [872,   628,   3213,  15824]  },
+                { name: 'India',                 flows: [-197, -401,  -1175,   -197]  },
+                { name: 'Japan',                 flows: [-52,  1899,   7723,  13413]  },
+                { name: 'South Korea',           flows: [-193, -250,   8398,  23720]  },
+                { name: 'Taiwan',                flows: [192,   998,   6025,   5876]  },
+                { name: 'Asian Pacific Region',  flows: [27,    133,    815,   1604]  },
+                { name: 'AP ex Japan',           flows: [-4,    -31,    304,   3415]  },
+                { name: 'Greater China',         flows: [-34,   -91,   -162,    538]  },
+            ],
+            asean: [
+                { name: 'Indonesia',             flows: [0,      0,    -22,     -17]  },
+                { name: 'Malaysia',              flows: [2,    -11,    -11,      66]  },
+                { name: 'Philippines',           flows: [0,      0,    -27,      32]  },
+                { name: 'Singapore',             flows: [0,     19,    171,     463]  },
+                { name: 'Vietnam',               flows: [-3,   -12,    -53,     -23]  },
+                { name: 'Thailand',              flows: [0,     -7,    -55,      18]  },
+                { name: 'ASEAN Countries',       flows: [0,      2,      9,      11]  },
+            ],
+            au_oceania: [
+                { name: 'Australia',             flows: [36,   175,    757,  -1517]  },
+                { name: 'New Zealand',           flows: [0,     -1,     -6,      2]  },
+            ],
+            africa_me: [
+                { name: 'Israel',                flows: [-20, -180,   -185,    423]  },
+                { name: 'Kuwait',                flows: [0,    -2,     -6,     -11]  },
+                { name: 'Saudi Arabia',          flows: [0,    10,     60,     115]  },
+                { name: 'South Africa',          flows: [3,  -190,   -121,     537]  },
+                { name: 'U.A.E.',                flows: [5,    73,     85,     120]  },
+                { name: 'Qatar',                 flows: [0,    14,     16,      16]  },
+                { name: 'African Region',        flows: [0,    -7,    -10,      69]  },
+            ],
+            s_c_america: [
+                { name: 'Argentina',             flows: [0,     0,     -3,      42]  },
+                { name: 'Brazil',                flows: [-34,  60,    616,   2959]  },
+                { name: 'Chile',                 flows: [-4,  -57,    -85,      52]  },
+                { name: 'Colombia',              flows: [7,     3,      9,      -4]  },
+                { name: 'Peru',                  flows: [0,     0,     -4,     223]  },
+                { name: 'Latin American Region', flows: [0,    48,    256,   1986]  },
+            ],
+            others: [
+                { name: 'Not Classified',        flows: [1127, 9401,  65247, 211113] },
+            ],
+        },
+        'fixed-income': {
+            na: [
+                { name: 'United States',         flows: [4153, 10527, 35570, 106259] },
+                { name: 'Canada',                flows: [1045,  1295,  3528,   6965]  },
+                { name: 'Mexico',                flows: [-2,     -2,    105,    109]  },
+                { name: 'North American Region', flows: [4,       2,     48,    285]  },
+            ],
+            europe: [
+                { name: 'Eastern Europe',        flows: [0,      2,      1,      51]  },
+                { name: 'Western Europe',        flows: [-53,   -21,   -831,    245]  },
+                { name: 'European Reg. ex UK',   flows: [0,      0,     -1,      75]  },
+                { name: 'European Region',       flows: [-123, -260,  -1521,   -388]  },
+                { name: 'European Union',        flows: [-10,   -16,   -117,     55]  },
+                { name: 'Eurozone',              flows: [39,    611,   1734,   4078]  },
+            ],
+            asia_ex_asean: [
+                { name: 'China',                 flows: [176,   125,  -2065, -14941]  },
+                { name: 'Hong Kong',             flows: [-183,  -14,    121,    355]  },
+                { name: 'India',                 flows: [0,       0,    -24,    -33]  },
+                { name: 'Japan',                 flows: [-1,    112,    453,    631]  },
+                { name: 'South Korea',           flows: [14,     50,    226,    296]  },
+                { name: 'AP ex Japan',           flows: [0,      19,      7,   -100]  },
+            ],
+            asean: [
+                { name: 'Indonesia',             flows: [0,      0,     -1,      15]  },
+                { name: 'Singapore',             flows: [1,      3,     -7,     -27]  },
+            ],
+            au_oceania: [
+                { name: 'Australia',             flows: [15,   105,    311,   1057]  },
+                { name: 'New Zealand',           flows: [0,     -1,     -1,     -1]  },
+            ],
+            africa_me: [
+                { name: 'Israel',                flows: [3,     -6,     15,    162]  },
+            ],
+            s_c_america: [
+                { name: 'Brazil',                flows: [11,   142,    638,   1353]  },
+            ],
+            others: [
+                { name: 'Not Classified',        flows: [500,  2230,  10153,  41813]  },
+            ],
+        },
+        specialty: {
+            na: [
+                { name: 'United States',         flows: [1397,  1887,  3720,   7535]  },
+                { name: 'North American Region', flows: [0,      -40,   -33,     10]  },
+            ],
+            europe: [
+                { name: 'Eastern Europe',        flows: [0,       0,    25,     93]  },
+                { name: 'Western Europe',        flows: [-26,   -80,   -95,   -255]  },
+                { name: 'European Region',       flows: [0,       0,     0,      -2]  },
+                { name: 'European Union',        flows: [0,       0,     0,      10]  },
+            ],
+            asia_ex_asean: [
+                { name: 'China',                 flows: [-59,   148,  3320,   9879]  },
+                { name: 'India',                 flows: [-1,      9,    26,     70]  },
+                { name: 'Malaysia',              flows: [0,       0,    12,     15]  },
+                { name: 'South Korea',           flows: [1,      12,    37,    425]  },
+            ],
+            au_oceania: [
+                { name: 'Australia',             flows: [1,       0,    11,     75]  },
+            ],
+            africa_me: [
+                { name: 'Israel',                flows: [0,      -1,     1,      3]  },
+                { name: 'South Africa',          flows: [0,      -2,   -15,    -87]  },
+            ],
+            others: [
+                { name: 'Not Classified',        flows: [-1294,-4578, -6118,  31344]  },
+            ],
+        },
+        municipal: {
+            na: [
+                { name: 'United States',         flows: [-330,  1073,  3449,   9326]  },
+                { name: 'Canada',                flows: [0,       0,     1,     26]  },
+            ],
+            others: [
+                { name: 'Not Classified',        flows: [-13,    14,   367,   1320]  },
+            ],
+        },
+    };
+
+    const regionSubtotals = {
+        equity:           { na:[-37854,57706,50586,158192], europe:[-175,1178,9170,29715], asia_ex_asean:[694,1605,15025,-70763], asean:[-1,-9,12,550], au_oceania:[36,174,755,-1504], africa_me:[-11,-282,-162,1269], s_c_america:[-31,54,789,5258], others:[1127,9401,65247,211113] },
+        'fixed-income':   { na:[5199,11822,39251,113618], europe:[-146,316,-734,4115], asia_ex_asean:[5,292,-1281,-13791], asean:[1,3,-8,-12], au_oceania:[15,104,310,1056], africa_me:[3,-6,23,157], s_c_america:[11,142,638,1353], others:[500,2230,10153,41813] },
+        specialty:        { na:[1397,1847,3687,7545], europe:[-3,-24,-93,283], asia_ex_asean:[-217,-363,5427,22238], asean:[0,0,0,0], au_oceania:[2,5,7,32], africa_me:[-2,-17,-19,-13], s_c_america:[-1,-1,-1,-11], others:[0,92,400,3489] },
+        'money-market':   { na:[52,-169,4913,22354], europe:[166,402,1081,1523], asia_ex_asean:[395,670,2264,-2181], asean:[0,0,0,2], au_oceania:[3,40,129,292], africa_me:[0,-1,-6,-8], s_c_america:[0,0,0,0], others:[8,515,1136,3329] },
+        'mixed-allocation':{ na:[37,109,649,2031], europe:[0,10,14,20], asia_ex_asean:[13,59,397,972], asean:[0,0,0,0], au_oceania:[0,-5,-27,-15], africa_me:[0,0,0,1], s_c_america:[0,0,0,0], others:[61,249,1836,5560] },
+        alternative:      { na:[162,607,2117,3785], europe:[0,0,-4,-24], asia_ex_asean:[0,2,6,-21], asean:[0,0,0,0], au_oceania:[0,0,13,-30], africa_me:[0,0,0,0], s_c_america:[0,0,0,0], others:[-65,432,3590,3241] },
+        commodity:        { na:[147,-265,1536,2416], europe:[-26,-80,-70,-154], asia_ex_asean:[-59,169,3395,10390], asean:[0,0,0,0], au_oceania:[1,0,11,75], africa_me:[0,-3,-13,-84], s_c_america:[0,0,0,0], others:[-1294,-4578,-6118,31344] },
+        municipal:        { na:[-330,1073,3450,9352], europe:[0,0,0,0], asia_ex_asean:[0,0,0,0], asean:[0,0,0,0], au_oceania:[0,0,0,0], africa_me:[0,0,0,0], s_c_america:[0,0,0,0], others:[-13,14,367,1320] },
+    };
+
+    const flowDb = {};
+    const assetIds = ['equity','fixed-income','specialty','money-market','mixed-allocation','alternative','commodity','municipal','total'];
+
+    assetIds.slice(0,8).forEach(a => {
+        flowDb[a] = {};
+        regions.forEach(r => {
+            flowDb[a][r.id] = (regionSubtotals[a] && regionSubtotals[a][r.id]) ? regionSubtotals[a][r.id] : [0,0,0,0];
+        });
+    });
+    flowDb['total'] = {};
+    regions.forEach(r => {
+        let sum = [0,0,0,0];
+        assetIds.slice(0,8).forEach(a => { flowDb[a][r.id].forEach((v,i) => sum[i] += v); });
+        flowDb['total'][r.id] = sum;
+    });
+    countryFlows['total'] = {};
+    regions.forEach(r => {
+        const combined = [];
+        assetIds.slice(0,8).forEach(a => {
+            if (countryFlows[a] && countryFlows[a][r.id]) {
+                countryFlows[a][r.id].forEach(c => {
+                    combined.push({ name: `${c.name} [${a.split('-')[0].toUpperCase()}]`, flows: c.flows });
+                });
+            }
+        });
+        countryFlows['total'][r.id] = combined;
+    });
+
+    let state = { asset: 'equity', period: 'ytd', selectedRegion: 'na' };
+    const pIdx = { '1d': 0, '1w': 1, '1m': 2, 'ytd': 3 };
+    let charts = {};
+
+    function updateState(newV) { state = { ...state, ...newV }; render(); }
+    function formatFlow(v) { return `${v >= 0 ? '+' : ''}${Math.round(v).toLocaleString()} M`; }
+    function getFlowColor(v) { return v >= 0 ? 'text-emerald-500' : 'text-rose-500'; }
+
+    function render() {
+        document.querySelectorAll('[id^="asset-"]').forEach(el => el.classList.remove('tab-active'));
+        const btn = document.getElementById(`asset-${state.asset}`);
+        if (btn) btn.classList.add('tab-active');
+        document.querySelectorAll('[id^="period-"]').forEach(el => el.classList.remove('tab-active'));
+        document.getElementById(`period-${state.period}`).classList.add('tab-active');
+
+        const idx = pIdx[state.period];
+        const currentData = regions.map(r => flowDb[state.asset][r.id][idx]);
+
+        charts.donut.data.datasets[0].data = currentData.map(v => Math.abs(v));
+        charts.donut.update();
+        charts.bar.data.datasets[0].data = currentData;
+        charts.bar.update();
+
+        const cards = document.getElementById('flowCards');
+        cards.innerHTML = '';
+        regions.forEach(r => {
+            const v = flowDb[state.asset][r.id][idx];
+            cards.innerHTML += `
+                <div onclick="updateState({selectedRegion:'${r.id}'})"
+                     class="region-card-btn p-3 rounded-2xl shadow-sm border-b-4 ${state.selectedRegion === r.id ? 'selected' : ''}"
+                     style="border-bottom-color:${r.color}">
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">${r.name}</div>
+                    <div class="text-xs font-bold mt-1 ${getFlowColor(v)}">${formatFlow(v)}</div>
+                </div>`;
+        });
+
+        const reg = regions.find(r => r.id === state.selectedRegion);
+        document.getElementById('selectedRegionName').innerText = reg.name;
+        document.getElementById('selectedRegionIndicator').style.backgroundColor = reg.color;
+        document.getElementById('selectedAssetLabel').innerText = state.asset.replace(/-/g,' ').toUpperCase();
+
+        const cTable = document.getElementById('countryTableBody');
+        cTable.innerHTML = '';
+        const sub = (countryFlows[state.asset] && countryFlows[state.asset][state.selectedRegion]) || [];
+        if (sub.length === 0) {
+            cTable.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 italic text-sm">No country-level data available for this selection</td></tr>`;
+        } else {
+            sub.forEach(c => {
+                cTable.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-all">
+                        <td class="px-6 py-4 font-semibold text-slate-700">${c.name}</td>
+                        ${c.flows.map((v,i) => `
+                            <td class="px-6 py-4 text-center font-medium ${getFlowColor(v)} ${i===idx ? 'bg-blue-50/50' : ''}">
+                                ${formatFlow(v)}
+                            </td>`).join('')}
+                    </tr>`;
+            });
+        }
+
+        const sTable = document.getElementById('flowTableBody');
+        sTable.innerHTML = '';
+        regions.forEach(r => {
+            const d = flowDb[state.asset][r.id];
+            sTable.innerHTML += `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 flex items-center">
+                        <div class="w-2 h-2 rounded-full mr-3" style="background-color:${r.color}"></div>
+                        <span class="font-semibold text-slate-700">${r.name}</span>
+                    </td>
+                    ${d.map((v,i) => `
+                        <td class="px-6 py-4 text-center font-medium ${getFlowColor(v)} ${i===idx ? 'bg-blue-50/50' : ''}">
+                            ${formatFlow(v)}
+                        </td>`).join('')}
+                </tr>`;
+        });
+    }
+
+    function initFundFlow() {
+        Chart.defaults.font.family = 'Kanit';
+        charts.donut = new Chart(document.getElementById('flowDonutChart').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: regions.map(r => r.name), datasets: [{ data: Array(8).fill(1), backgroundColor: regions.map(r => r.color), borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 9 } } } }, cutout: '72%' }
+        });
+        charts.bar = new Chart(document.getElementById('flowBarChart').getContext('2d'), {
+            type: 'bar',
+            data: { labels: regions.map(r => r.name), datasets: [{ data: Array(8).fill(0), backgroundColor: (ctx) => ctx.raw >= 0 ? '#10b981' : '#f43f5e', borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 8 }, maxRotation: 30 } } } }
+        });
+        render();
+    }
+
+
+    /* ────────────────────────────────────────────────
+       IMPORT ANALYSIS — DATA & RENDER
+    ──────────────────────────────────────────────── */
+    const importData = [
+        {
+            country: "Malaysia (2025)",
+            data: {
+                "Crude oil":        [ ["Saudi Arabia", 33], ["United Arab Emirates", 21], ["Oman", 9], ["Sudan", 8], ["USA", 5] ],
+                "Petroleum liquids":[ ["Singapore", 40], ["Rep. of Korea", 12], ["China", 10], ["India", 6], ["Other Asia, nes", 5] ],
+                "Petroleum gases":  [ ["Australia", 78], ["Thailand", 4], ["USA", 4], ["Trinidad and Tobago", 3], ["Viet Nam", 4] ],
+                "Fertilizer":       [ ["Russian Federation", 29], ["China", 24], ["Canada", 12], ["USA", 5], ["USA", 5] ]
+            }
+        },
+        {
+            country: "Philippines (2024)",
+            data: {
+                "Crude oil":        [ ["Saudi Arabia", 48], ["United Arab Emirates", 33], ["Iraq", 13], ["Colombia", 2], ["Japan", 2] ],
+                "Petroleum liquids":[ ["Rep. of Korea", 34], ["China", 25], ["Malaysia", 13], ["Singapore", 9], ["Other Asia, nes", 5] ],
+                "Petroleum gases":  [ ["China", 19], ["Australia", 16], ["Nigeria", 13], ["Brunei Darussalam", 9], ["Saudi Arabia", 9] ],
+                "Fertilizer":       [ ["China", 37], ["Indonesia", 17], ["Malaysia", 10], ["Viet Nam", 6], ["Canada", 5] ]
+            }
+        },
+        {
+            country: "Singapore (2024)",
+            data: {
+                "Crude oil":        [ ["United Arab Emirates", 29], ["USA", 27], ["Qatar", 12], ["Saudi Arabia", 8], ["Brazil", 7] ],
+                "Petroleum liquids":[ ["Malaysia", 16], ["China", 10], ["Rep. of Korea", 10], ["Russian Federation", 8], ["India", 7] ],
+                "Petroleum gases":  [ ["Indonesia", 29], ["Australia", 20], ["Qatar", 14], ["Malaysia", 13], ["Mozambique", 11] ],
+                "Fertilizer":       [ ["USA", 23], ["Malaysia", 17], ["China", 16], ["Germany", 9], ["Saudi Arabia", 6] ]
+            }
+        },
+        {
+            country: "Thailand (2024)",
+            data: {
+                "Crude oil":        [ ["United Arab Emirates", 44], ["Saudi Arabia", 12], ["USA", 11], ["Malaysia", 7], ["Indonesia", 6] ],
+                "Petroleum liquids":[ ["United Arab Emirates", 25], ["Kuwait", 16], ["Malaysia", 14], ["Singapore", 10], ["Rep. of Korea", 8] ],
+                "Petroleum gases":  [ ["Qatar", 21], ["Myanmar", 19], ["USA", 12], ["Australia", 12], ["Malaysia", 9] ],
+                "Fertilizer":       [ ["Saudi Arabia", 20], ["China", 18], ["Russian Federation", 11], ["Norway", 6], ["Oman", 6] ]
+            }
+        },
+        {
+            country: "Indonesia (2025)",
+            data: {
+                "Crude oil":        [ ["Nigeria", 26], ["Angola", 21], ["Saudi Arabia", 18], ["Brazil", 9], ["Australia", 8] ],
+                "Petroleum liquids":[ ["Singapore", 50], ["Malaysia", 27], ["Saudi Arabia", 5], ["Russian Federation", 5], ["United Arab Emirates", 3] ],
+                "Petroleum gases":  [ ["USA", 68], ["United Arab Emirates", 13], ["Qatar", 12], ["Kuwait", 2], ["Saudi Arabia", 2] ],
+                "Fertilizer":       [ ["China", 24], ["Russian Federation", 23], ["Canada", 19], ["Uzbekistan", 6], ["Egypt", 5] ]
+            }
+        },
+        {
+            country: "Vietnam (2023)",
+            data: {
+                "Crude oil":        [ ["Kuwait", 85], ["Azerbaijan", 6], ["USA", 5], ["Angola", 1], ["Nigeria", 1] ],
+                "Petroleum liquids":[ ["Rep. of Korea", 38], ["Singapore", 22], ["Malaysia", 18], ["Thailand", 10], ["China", 9] ],
+                "Petroleum gases":  [ ["Saudi Arabia", 21], ["United Arab Emirates", 17], ["China", 13], ["Kuwait", 9], ["Qatar", 8] ],
+                "Fertilizer":       [ ["China", 47], ["Russian Federation", 9], ["Lao PDR", 7], ["Rep. of Korea", 5], ["Uzbekistan", 5] ]
+            }
+        }
+    ];
+
+    const importConfig = {
+        "Crude oil":        { color: "bg-blue-500",    border: "border-blue-200",   text: "text-blue-700"   },
+        "Petroleum liquids":{ color: "bg-amber-500",   border: "border-amber-200",  text: "text-amber-700"  },
+        "Petroleum gases":  { color: "bg-emerald-500", border: "border-emerald-200",text: "text-emerald-700"},
+        "Fertilizer":       { color: "bg-purple-500",  border: "border-purple-200", text: "text-purple-700" }
+    };
+
+    function buildImportDashboard() {
+        const container = document.getElementById('import-dashboard-content');
+        importData.forEach(item => {
+            const section = document.createElement('div');
+            section.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden";
+            let html = `
+                <div class="bg-slate-800 text-white px-6 py-4" style="font-family:'Sarabun',sans-serif;">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <span class="w-3 h-3 bg-red-500 rounded-full mr-3 animate-pulse"></span>${item.country}
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-y md:divide-y-0 divide-slate-100">`;
+            Object.keys(item.data).forEach(cat => {
+                const style = importConfig[cat];
+                html += `<div class="p-6 category-card"><h3 class="font-bold text-sm uppercase tracking-wider mb-4 ${style.text}">${cat}</h3><div class="space-y-4">`;
+                item.data[cat].forEach(([name, pct]) => {
+                    html += `
+                        <div class="text-sm">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-600 font-medium truncate pr-2">${name}</span>
+                                <span class="text-slate-900 font-bold">${pct}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                <div class="${style.color} h-1.5 rounded-full" style="width:${pct}%"></div>
+                            </div>
+                        </div>`;
+                });
+                html += `</div></div>`;
+            });
+            html += `</div>`;
+            section.innerHTML = html;
+            container.appendChild(section);
+        });
+    }
+
+    /* Download PNG */
+    document.getElementById('download-btn').addEventListener('click', function() {
+        const noExport = document.querySelectorAll('.no-export');
+        noExport.forEach(el => el.style.display = 'none');
+        this.disabled = true;
+        document.getElementById('status-msg').classList.remove('hidden');
+        html2canvas(document.getElementById('capture-area'), { scale: 2, useCORS: true, backgroundColor: '#f8fafc' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Import_Analysis_Dashboard.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            noExport.forEach(el => el.style.display = 'block');
+            this.disabled = false;
+            document.getElementById('status-msg').classList.add('hidden');
+        }).catch(() => {
+            noExport.forEach(el => el.style.display = 'block');
+            this.disabled = false;
+            document.getElementById('status-msg').classList.add('hidden');
+        });
+    });
+
+
+    /* ────────────────────────────────────────────────
+       INIT
+    ──────────────────────────────────────────────── */
+    window.onload = function() {
+        initFundFlow();
+        buildImportDashboard();
+    };
+
+    </script>
+</body>
+</html>
